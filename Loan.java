@@ -1,16 +1,20 @@
+import java.time.LocalDate;
 public class Loan {
     private Book book;
     private Member member;
-    private Date loanDate;
-    private Date dueDate;
+    private LocalDate loanDate;
+    private LocalDate dueDate;
     private String status;
-    public Loan(Book book, Member member, Date loanDate, Date dueDate, String status) {
-        if (book==null) throw new ExceptionInInitializerError("Invalid book");
-        if (member==null) throw new ExceptionInInitializerError("Invalid member");
-        if (loanDate==null) throw new ExceptionInInitializerError("Invalid loan date");
-        if (dueDate==null) throw new ExceptionInInitializerError("Invalid due date");
-        if (status==null) throw new ExceptionInInitializerError("Invalid status");
-        this.book=new Book(
+
+    public Loan(Book book, Member member, LocalDate loanDate, LocalDate dueDate) {
+
+        if (book == null)  throw new IllegalArgumentException("Invalid book");
+        if (member == null) throw new IllegalArgumentException("Invalid member");
+        if (loanDate == null && loanDate.isAfter(LocalDate.now())) throw new IllegalArgumentException("Invalid loan date");
+        if (dueDate == null && dueDate.isAfter(LocalDate.now())) throw new IllegalArgumentException("Invalid due date");
+        
+
+        this.book = new Book(
             new Isbn(book.getIsbn().getIsbn()),
             book.getTitle(),
             book.getAuthor(),
@@ -20,22 +24,22 @@ public class Loan {
             member.getId(),
             member.getFullName(),
             new Email(member.getEmail().getEmail()),
-            new Date(
-                member.getRegistratioDate().getDay(),
-                member.getRegistratioDate().getMonth(),
-                member.getRegistratioDate().getYear()
-            )
+            member.getRegistrationDate()
         );
-        this.loanDate = new Date(
-            loanDate.getDay(),
-            loanDate.getMonth(),
-            loanDate.getYear()
-        );
-        this.dueDate = new Date(
-            dueDate.getDay(),
-            dueDate.getMonth(),
-            dueDate.getYear()
-        );
-        this.status = status;
+
+        this.loanDate = loanDate;
+        this.dueDate = dueDate;
+        this.status = "ONGOING";
+    }
+    public boolean isLate(){
+        return LocalDate.now().isAfter(dueDate);
+    }
+    public void updateStatus(){
+        if(this.isLate() && this.status=="RETURNED"){
+            this.status="LATE";
+        }
+    }
+    public String getStatus(){
+        return this.status;
     }
 }
